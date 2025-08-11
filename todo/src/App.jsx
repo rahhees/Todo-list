@@ -7,6 +7,8 @@ function App() {
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
   const [newTask, setNewTask] = useState('');
+   const [editingIndex, setEditingIndex] = useState(null);
+  const [editingText, setEditingText] = useState('');
 
 
   
@@ -45,15 +47,32 @@ function handleDelete(){
   setNewTask('');
 }
 
- function addTask() {
-  if (newTask.trim() !== '') {
-    const dueTime = Date.now() + 5 * 60 * 1000;
-    const task = { text: newTask, completed: false, due: dueTime };
-    setTasks([task, ...tasks]);
-    setNewTask('');
-  }
-}
 
+
+function handleEdit(index) {
+    setEditingIndex(index);
+    setEditingText(tasks[index].text);
+  }
+
+  function handleEditChange(e) {
+    setEditingText(e.target.value);
+  }
+
+  function saveEdit(index) {
+    if (editingText.trim() === '') return; 
+    const updatedTasks = [...tasks];
+    updatedTasks[index].text = editingText;
+    setTasks(updatedTasks);
+    setEditingIndex(null);
+  }
+
+  function handleEditKeyDown(e, index) {
+    if (e.key === 'Enter') {
+      saveEdit(index);
+    } else if (e.key === 'Escape') {
+      setEditingIndex(null);
+    }
+  }
 
 return (
 <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
@@ -124,8 +143,22 @@ return (
             {index + 1}.
           </span>
 
-   
-          <span className="pl-8 flex-grow">{task.text}</span>
+  <span className="pl-8 flex-grow">
+                {editingIndex === index ? (
+                  <input
+                    type="text"
+                    value={editingText}
+                    onChange={handleEditChange}
+                    onBlur={() => saveEdit(index)}
+                    onKeyDown={(e) => handleEditKeyDown(e, index)}
+                    autoFocus
+                    className="border border-indigo-400 rounded px-2 py-1 w-full text-red-600"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <span onDoubleClick={() => handleEdit(index)}>{task.text}</span>
+                )}
+              </span>
 
           <button
             onClick={(e) => {
