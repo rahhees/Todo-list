@@ -47,8 +47,10 @@ function handleDelete(){
   setNewTask('');
 }
 
-
-
+function handleSubmit(e) {
+  e.preventDefault(); 
+  addTask();
+}
 function handleEdit(index) {
     setEditingIndex(index);
     setEditingText(tasks[index].text);
